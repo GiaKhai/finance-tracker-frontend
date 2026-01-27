@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   X,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,10 @@ export default function Layout() {
     { to: "/transactions", label: "Transactions", icon: Receipt },
     { to: "/categories", label: "Categories", icon: Tag },
   ];
+
+  if (user?.role === 'admin') {
+    navItems.push({ to: "/users", label: "Users", icon: User });
+  }
 
   const isActive = (path) => {
     if (path === "/") return location.pathname === "/";
