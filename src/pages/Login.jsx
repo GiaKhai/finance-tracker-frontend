@@ -125,28 +125,7 @@ export default function Login() {
               )}
             </Button>
           </form>
-
-          <Card className="mt-6 bg-primary/5 border-primary/20">
-            <CardContent className="pt-6">
-              <p className="text-sm font-medium mb-3 flex items-center gap-2">
-                <span className="text-lg">🔐</span>
-                Demo Account
-              </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Email:</span>
-                  <span className="font-mono font-semibold">
-                    admin@finance.com
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Password:</span>
-                  <span className="font-mono font-semibold">P@ssword123</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
+          
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link

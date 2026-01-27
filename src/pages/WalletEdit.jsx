@@ -82,7 +82,7 @@ export default function WalletEdit() {
         await transactionService.createTransaction({
           wallet_id: parseInt(id),
           amount: Math.abs(difference),
-          type: difference > 0 ? "income" : "expense",
+          type: difference > 0 ? "INCOME" : "EXPENSE",
           category: "User Edit", // Special category for manual edits
           description: `Balance adjustment: ${
             difference > 0 ? "+" : ""

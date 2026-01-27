@@ -14,10 +14,6 @@ import { TransactionForm } from "./TransactionForm";
 export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
 
-  const handleSuccess = () => {
-    setOpen(false);
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -35,8 +31,7 @@ export function AddTransactionDialog() {
           </DialogDescription>
         </DialogHeader>
         <TransactionForm
-          onSuccess={handleSuccess}
-          onCancel={() => setOpen(false)}
+          setOpen={setOpen}
         />
       </DialogContent>
     </Dialog>

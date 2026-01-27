@@ -107,10 +107,10 @@ export default function TransactionsAdvanced() {
         header: "Type",
         cell: ({ row }) => (
           <Badge
-            variant={row.original.type === "income" ? "success" : "destructive"}
+            variant={row.original.type === "INCOME" ? "success" : "destructive"}
             className="gap-1"
           >
-            {row.original.type === "income" ? (
+            {row.original.type === "INCOME" ? (
               <ArrowUpRight className="h-3 w-3" />
             ) : (
               <ArrowDownRight className="h-3 w-3" />
@@ -128,12 +128,12 @@ export default function TransactionsAdvanced() {
           <div className="text-right">
             <span
               className={`font-bold ${
-                row.original.type === "income"
+                row.original.type === "INCOME"
                   ? "text-green-600"
                   : "text-red-600"
               }`}
             >
-              {row.original.type === "income" ? "+" : "-"}
+              {row.original.type === "INCOME" ? "+" : "-"}
               {formatCurrency(parseFloat(row.original.amount))}
             </span>
           </div>
@@ -178,10 +178,10 @@ export default function TransactionsAdvanced() {
 
   // Calculate summary
   const totalIncome = transactions
-    .filter((t) => t.type === "income")
+    .filter((t) => t.type === "INCOME")
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
   const totalExpense = transactions
-    .filter((t) => t.type === "expense")
+    .filter((t) => t.type === "EXPENSE")
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
   const netAmount = totalIncome - totalExpense;
 

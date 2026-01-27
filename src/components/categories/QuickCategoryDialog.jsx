@@ -36,6 +36,7 @@ const iconOptions = [
   { value: "💰", label: "Salary" },
   { value: "📈", label: "Investment" },
   { value: "🎁", label: "Gift" },
+  { value: "📦", label: "Others" },
 ];
 
 export function QuickCategoryDialog({ open, onOpenChange, onSuccess }) {

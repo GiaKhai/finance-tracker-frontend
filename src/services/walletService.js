@@ -1,8 +1,8 @@
 import api from "./api";
 
 export const walletService = {
-  getWallets: async (params) => {
-    const response = await api.get("/wallets", { params });
+  getWallets: async () => {
+    const response = await api.get("/wallets");
     return response.data;
   },
 

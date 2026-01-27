@@ -37,18 +37,16 @@ import { formatCurrency } from "@/lib/utils";
 
 // Wallet types with icons
 const walletTypes = [
-  { value: "cash", label: "Cash", icon: Banknote },
-  { value: "bank", label: "Bank Account", icon: Building2 },
-  { value: "credit", label: "Credit Card", icon: CreditCard },
-  { value: "ewallet", label: "E-Wallet", icon: Smartphone },
+  { value: "CASH", label: "Cash", icon: Banknote },
+  { value: "BANK", label: "Bank Account", icon: Building2 },
+  { value: "CREDIT", label: "Credit Card", icon: CreditCard },
+  { value: "EWALLET", label: "E-Wallet", icon: Smartphone },
 ];
 
 export default function Wallets() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const {
     register,
     handleSubmit,
@@ -58,13 +56,13 @@ export default function Wallets() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      type: "cash",
+      type: "CASH",
     },
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["wallets", page, limit],
-    queryFn: () => walletService.getWallets({ page, limit }),
+    queryKey: ["wallets"],
+    queryFn: () => walletService.getWallets(),
   });
 
   const createMutation = useMutation({
@@ -212,8 +210,7 @@ export default function Wallets() {
         {data?.wallets?.map((wallet) => {
           const walletType =
             walletTypes.find((t) => t.value === wallet.type) || walletTypes[0];
-          const WalletIcon = walletType.icon;
-
+          const WalletIcon = walletType.icon;          
           return (
             <Card
               key={wallet.id}
@@ -283,35 +280,6 @@ export default function Wallets() {
             </Button>
           </CardContent>
         </Card>
-      )}
-
-      {data?.pagination && data.pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Page {data.pagination.page} of {data.pagination.totalPages} (
-            {data.pagination.total} total)
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setPage((p) => Math.min(data.pagination.totalPages, p + 1))
-              }
-              disabled={page === data.pagination.totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
       )}
     </div>
   );

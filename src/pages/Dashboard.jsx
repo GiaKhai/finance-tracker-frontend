@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
+import dayjs from "dayjs";
 
 const COLORS = [
   "#3b82f6",
@@ -52,80 +53,60 @@ export default function Dashboard() {
 
   const { data: walletsData } = useQuery({
     queryKey: ["wallets"],
-    queryFn: walletService.getWallets,
+    queryFn: walletService.getAllWallets,
   });
 
+
+  const getFilterDate = () => {
+    const now = dayjs();
+    const startOfWeek = now.startOf("week");
+    const startOfMonth = now.startOf("month");
+    const startOfYear = now.startOf("year");
+
+    switch (timeRange) {
+      case "today":
+        return { start: now, end: now };
+      case "this_week":
+        return { start: startOfWeek, end: now };
+      case "this_month":
+        return { start: startOfMonth, end: now };
+      case "this_year":
+        return { start: startOfYear, end: now };
+      case "all":
+      default:
+        return { start: undefined, end: undefined };
+    }
+  };
+
   const { data: transactionsData } = useQuery({
-    queryKey: ["transactions"],
-    queryFn: () => transactionService.getTransactions(),
+    queryKey: ["transactions", timeRange, selectedWallet, selectedCategory],
+    queryFn: () => transactionService.getAllTransactions(
+      {
+        start_date: timeRange === "all" ? undefined : dayjs(getFilterDate().start).format("YYYY-MM-DD"),
+        end_date: timeRange === "all" ? undefined : dayjs(getFilterDate().end).format("YYYY-MM-DD"),
+        wallet_id: selectedWallet === "all" ? undefined : selectedWallet,
+        category_id: selectedCategory === "all" ? undefined : selectedCategory,
+      }
+    ),
   });
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => categoryService.getCategories(),
+    queryFn: () => categoryService.getAllCategories(),
   });
 
   const totalBalance =
     walletsData?.wallets?.reduce((sum, w) => sum + parseFloat(w.balance), 0) ||
     0;
 
-  // Filter transactions based on time range, wallet, and category
-  const filteredTransactions = useMemo(() => {
-    let filtered = transactionsData?.transactions || [];
 
-    // Filter by wallet
-    if (selectedWallet !== "all") {
-      filtered = filtered.filter(
-        (t) => t.wallet_id === parseInt(selectedWallet)
-      );
-    }
+  const data = transactionsData?.transactions || [];
 
-    // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (t) => t.category_id === parseInt(selectedCategory)
-      );
-    }
-
-    // Filter by time range
-    const now = new Date();
-    const startOfToday = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-    filtered = filtered.filter((t) => {
-      const date = new Date(t.date);
-      switch (timeRange) {
-        case "today":
-          return date >= startOfToday;
-        case "this_week":
-          return date >= startOfWeek;
-        case "this_month":
-          return date >= startOfMonth;
-        case "this_year":
-          return date >= startOfYear;
-        case "all":
-        default:
-          return true;
-      }
-    });
-
-    return filtered;
-  }, [transactionsData, timeRange, selectedWallet, selectedCategory]);
-
-  const currentMonthTransactions = filteredTransactions;
-
-  const monthlyIncome = currentMonthTransactions
+  const monthlyIncome = data
     .filter((t) => t.type === "INCOME")
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-  const monthlyExpense = currentMonthTransactions
+  const monthlyExpense = data
     .filter((t) => t.type === "EXPENSE")
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
@@ -140,8 +121,8 @@ export default function Dashboard() {
       const year = date.getFullYear();
 
       const monthTransactions =
-        transactionsData?.transactions?.filter((t) => {
-          const tDate = new Date(t.date);
+        data?.filter((t) => {
+          const tDate = new Date(t.transaction_date);
           return tDate.getMonth() === month && tDate.getFullYear() === year;
         }) || [];
 
@@ -162,11 +143,12 @@ export default function Dashboard() {
     return months;
   }, [transactionsData]);
 
+
   const categoryStats = useMemo(() => {
     const incomeByCategory = {};
     const expenseByCategory = {};
 
-    currentMonthTransactions.forEach((t) => {
+    data.forEach((t) => {
       const categoryName = t.category_name || t.category || "Other";
       const amount = parseFloat(t.amount);
 
@@ -190,7 +172,7 @@ export default function Dashboard() {
       .slice(0, 5);
 
     return { incomeData, expenseData };
-  }, [currentMonthTransactions]);
+  }, [data]);
 
   return (
     <div className="space-y-6">
@@ -245,22 +227,18 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
-          {(timeRange !== "this_month" ||
-            selectedWallet !== "all" ||
-            selectedCategory !== "all") && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setTimeRange("this_month");
-                setSelectedWallet("all");
-                setSelectedCategory("all");
-              }}
-              className="h-9"
-            >
-              Reset
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setTimeRange("this_month");
+              setSelectedWallet("all");
+              setSelectedCategory("all");
+            }}
+            className="h-9"
+          >
+            Reset
+          </Button>
         </div>
       </div>
 
@@ -294,12 +272,12 @@ export default function Dashboard() {
               {timeRange === "today"
                 ? "Today"
                 : timeRange === "this_week"
-                ? "This week"
-                : timeRange === "this_month"
-                ? "This month"
-                : timeRange === "this_year"
-                ? "This year"
-                : "All time"}
+                  ? "This week"
+                  : timeRange === "this_month"
+                    ? "This month"
+                    : timeRange === "this_year"
+                      ? "This year"
+                      : "All time"}
             </p>
           </CardContent>
         </Card>
@@ -317,12 +295,12 @@ export default function Dashboard() {
               {timeRange === "today"
                 ? "Today"
                 : timeRange === "this_week"
-                ? "This week"
-                : timeRange === "this_month"
-                ? "This month"
-                : timeRange === "this_year"
-                ? "This year"
-                : "All time"}
+                  ? "This week"
+                  : timeRange === "this_month"
+                    ? "This month"
+                    : timeRange === "this_year"
+                      ? "This year"
+                      : "All time"}
             </p>
           </CardContent>
         </Card>
@@ -334,9 +312,8 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div
-              className={`text-2xl font-bold ${
-                cashFlow >= 0 ? "text-green-600" : "text-red-600"
-              }`}
+              className={`text-2xl font-bold ${cashFlow >= 0 ? "text-green-600" : "text-red-600"
+                }`}
             >
               {cashFlow >= 0 ? "+" : ""}
               {formatCurrency(cashFlow)}
@@ -512,18 +489,17 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {transactionsData?.transactions?.slice(0, 6).map((transaction) => (
+            {data?.slice(0, 10).map((transaction) => (
               <div
                 key={transaction.id}
                 className="flex items-center justify-between p-3 rounded-lg border"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`p-2 rounded-full ${
-                      transaction.type === "INCOME"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
+                    className={`p-2 rounded-full ${transaction.type === "INCOME"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
+                      }`}
                   >
                     {transaction.type === "INCOME" ? (
                       <ArrowUpRight className="h-3 w-3" />
@@ -536,24 +512,22 @@ export default function Dashboard() {
                       {transaction.category_name || transaction.category}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(transaction.date).toLocaleDateString("en-US")}
+                      {dayjs(transaction.transaction_date).format("DD/MM/YYYY")}
                     </p>
                   </div>
                 </div>
                 <p
-                  className={`font-bold ${
-                    transaction.type === "INCOME"
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
+                  className={`font-bold ${transaction.type === "INCOME"
+                    ? "text-green-600"
+                    : "text-red-600"
+                    }`}
                 >
                   {transaction.type === "INCOME" ? "+" : "-"}
                   {formatCurrency(parseFloat(transaction.amount))}
                 </p>
               </div>
             ))}
-            {(!transactionsData?.transactions ||
-              transactionsData.transactions.length === 0) && (
+            {(!data || data.length === 0) && (
               <div className="text-center py-8 text-sm text-muted-foreground">
                 No transactions found
               </div>

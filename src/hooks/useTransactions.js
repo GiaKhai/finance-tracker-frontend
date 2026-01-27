@@ -39,16 +39,10 @@ export function useCreateTransaction() {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["wallets"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-
-      toast.success("Tạo giao dịch thành công", {
-        description: `Số dư mới: ${data.data.balanceChange.current.toLocaleString(
-          "vi-VN"
-        )} VND`,
-      });
     },
     onError: (error) => {
       const message = error.response?.data?.message || "Có lỗi xảy ra";
-      toast.error("Tạo giao dịch thất bại", {
+      toast.error("Transaction created failed", {
         description: message,
       });
     },
@@ -68,12 +62,10 @@ export function useUpdateTransaction() {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["wallets"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-
-      toast.success("Cập nhật giao dịch thành công");
     },
     onError: (error) => {
       const message = error.response?.data?.message || "Có lỗi xảy ra";
-      toast.error("Cập nhật giao dịch thất bại", {
+      toast.error("Transaction updated failed", {
         description: message,
       });
     },
@@ -92,12 +84,11 @@ export function useDeleteTransaction() {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["wallets"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-
-      toast.success("Xóa giao dịch thành công");
+      toast.success("Transaction deleted successfully");
     },
     onError: (error) => {
       const message = error.response?.data?.message || "Có lỗi xảy ra";
-      toast.error("Xóa giao dịch thất bại", {
+      toast.error("Transaction deleted failed", {
         description: message,
       });
     },

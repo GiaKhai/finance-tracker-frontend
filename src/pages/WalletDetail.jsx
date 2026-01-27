@@ -27,7 +27,6 @@ import { formatCurrency } from "@/lib/utils";
 export default function WalletDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [transactionType, setTransactionType] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -39,7 +38,7 @@ export default function WalletDetail() {
 
   const { data: transactionsData } = useQuery({
     queryKey: ["transactions"],
-    queryFn: () => transactionService.getTransactions(),
+    queryFn: () => transactionService.getAllTransactions(),
   });
 
   const { data: categoriesData } = useQuery({
@@ -230,19 +229,17 @@ export default function WalletDetail() {
                 </SelectContent>
               </Select>
 
-              {(transactionType !== "all" || selectedCategory !== "all") && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setTransactionType("all");
-                    setSelectedCategory("all");
-                  }}
-                  className="h-9"
-                >
-                  Reset
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setTransactionType("all");
+                  setSelectedCategory("all");
+                }}
+                className="h-9"
+              >
+                Reset
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -256,11 +253,10 @@ export default function WalletDetail() {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-full ${
-                        transaction.type === "INCOME"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
+                      className={`p-2 rounded-full ${transaction.type === "INCOME"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
+                        }`}
                     >
                       {transaction.type === "INCOME" ? (
                         <ArrowUpRight className="h-3 w-3" />
@@ -290,11 +286,10 @@ export default function WalletDetail() {
                     </div>
                   </div>
                   <p
-                    className={`font-bold ${
-                      transaction.type === "INCOME"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
+                    className={`font-bold ${transaction.type === "INCOME"
+                      ? "text-green-600"
+                      : "text-red-600"
+                      }`}
                   >
                     {transaction.type === "INCOME" ? "+" : "-"}
                     {formatCurrency(parseFloat(transaction.amount))}

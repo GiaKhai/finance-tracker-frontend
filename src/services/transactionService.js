@@ -6,6 +6,11 @@ export const transactionService = {
     return response.data;
   },
 
+    getAllTransactions: async (params) => {
+    const response = await api.get("/transactions/all", { params });
+    return response.data;
+  },
+
   getTransactionById: async (id) => {
     const response = await api.get(`/transactions/${id}`);
     return response.data;

@@ -52,7 +52,7 @@ const transactionSchema = z.object({
   note: z.string().max(500, "Note must not exceed 500 characters").optional(),
 });
 
-export function TransactionForm({ onSuccess, onCancel }) {
+export function TransactionForm({ setOpen }) {
   const [amountInput, setAmountInput] = useState("");
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [showWalletDialog, setShowWalletDialog] = useState(false);
@@ -120,15 +120,10 @@ export function TransactionForm({ onSuccess, onCancel }) {
         description: data.note || "",
       };
 
-      await createTransaction.mutateAsync(payload);
-
-      // Call success callback
-      if (onSuccess) {
-        onSuccess();
-      }
+      await createTransaction.mutateAsync(payload);      
+      setOpen(false);
     } catch (error) {
-      // Error handled by mutation
-      console.error("Transaction error:", error);
+      console.error("Transaction error:", error)
     }
   };
 
@@ -439,16 +434,14 @@ export function TransactionForm({ onSuccess, onCancel }) {
             "Create Transaction"
           )}
         </Button>
-        {onCancel && (
           <Button
             type="button"
             variant="outline"
-            onClick={onCancel}
+            onClick={() => setOpen(false)}
             disabled={isLoading}
           >
             Cancel
           </Button>
-        )}
       </div>
 
       {/* Quick Category Creation Dialog */}

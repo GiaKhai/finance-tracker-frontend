@@ -6,6 +6,11 @@ export const categoryService = {
     return response.data;
   },
 
+  getAllCategories: async (params) => {
+    const response = await api.get("/categories/all", { params });
+    return response.data;
+  },
+
   getCategoryById: async (id) => {
     const response = await api.get(`/categories/${id}`);
     return response.data;

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Receipt, Trash2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/data-table";
+import dayjs from "dayjs";
 
 export default function Transactions() {
   const queryClient = useQueryClient();
@@ -43,11 +44,11 @@ export default function Transactions() {
   const columns = useMemo(
     () => [
       {
-        accessorKey: "date",
+        accessorKey: "created_at",
         header: "Date",
         cell: ({ row }) => (
           <span className="font-medium">
-            {new Date(row.original.date).toLocaleDateString("vi-VN")}
+            {dayjs(row.original.transaction_date).format("DD/MM/YYYY")}
           </span>
         ),
         enableSorting: true,
@@ -71,10 +72,10 @@ export default function Transactions() {
         header: "Type",
         cell: ({ row }) => (
           <Badge
-            variant={row.original.type === "income" ? "success" : "destructive"}
+            variant={row.original.type === "INCOME" ? "success" : "destructive"}
             className="gap-1"
           >
-            {row.original.type === "income" ? (
+            {row.original.type === "INCOME" ? (
               <ArrowUpRight className="h-3 w-3" />
             ) : (
               <ArrowDownRight className="h-3 w-3" />
@@ -90,10 +91,10 @@ export default function Transactions() {
         cell: ({ row }) => (
           <span
             className={`font-bold ${
-              row.original.type === "income" ? "text-green-600" : "text-red-600"
+              row.original.type === "INCOME" ? "text-green-600" : "text-red-600"
             }`}
           >
-            {row.original.type === "income" ? "+" : "-"}
+            {row.original.type === "INCOME" ? "+" : "-"}
             {formatCurrency(parseFloat(row.original.amount))}
           </span>
         ),
@@ -101,7 +102,6 @@ export default function Transactions() {
       },
       {
         id: "actions",
-        header: "Actions",
         cell: ({ row }) => (
           <div className="flex justify-end">
             <Button
