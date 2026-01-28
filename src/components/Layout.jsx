@@ -25,6 +25,7 @@ export default function Layout() {
     { to: "/wallets", label: "Wallets", icon: Wallet },
     { to: "/transactions", label: "Transactions", icon: Receipt },
     { to: "/categories", label: "Categories", icon: Tag },
+    { to: "/budgets", label: "Budgets", icon: Tag },
   ];
 
   if (user?.role === 'admin') {

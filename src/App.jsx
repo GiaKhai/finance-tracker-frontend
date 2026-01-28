@@ -9,6 +9,7 @@ import WalletEdit from "./pages/WalletEdit";
 import Transactions from "./pages/Transactions";
 import Categories from "./pages/Categories";
 import Users from "./pages/Users";
+import Budgets from "./pages/Budgets";
 import Layout from "./components/Layout";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="transactions" element={<Transactions />} />
         <Route path="categories" element={<Categories />} />
         <Route path="users" element={<Users />} />
+        <Route path="budgets" element={<Budgets />} />
       </Route>
     </Routes>
   );
