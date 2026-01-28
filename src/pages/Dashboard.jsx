@@ -36,6 +36,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import dayjs from "dayjs";
+import { useAuthStore } from "../store/authStore";
+import { userService } from "../services/userService";
 
 const COLORS = [
   "#3b82f6",
@@ -47,9 +49,17 @@ const COLORS = [
 ];
 
 export default function Dashboard() {
+  const { user } = useAuthStore();
   const [timeRange, setTimeRange] = useState("this_month");
   const [selectedWallet, setSelectedWallet] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedUser, setSelectedUser] = useState("all");
+
+  const { data: usersData } = useQuery({
+    queryKey: ["users-list"],
+    queryFn: () => userService.getUsers({ page: 1, limit: 100 }),
+    enabled: user?.role === "admin",
+  });
 
   const { data: walletsData } = useQuery({
     queryKey: ["wallets"],
@@ -79,13 +89,14 @@ export default function Dashboard() {
   };
 
   const { data: transactionsData } = useQuery({
-    queryKey: ["transactions", timeRange, selectedWallet, selectedCategory],
+    queryKey: ["transactions", timeRange, selectedWallet, selectedCategory, selectedUser],
     queryFn: () => transactionService.getAllTransactions(
       {
         start_date: timeRange === "all" ? undefined : dayjs(getFilterDate().start).format("YYYY-MM-DD"),
         end_date: timeRange === "all" ? undefined : dayjs(getFilterDate().end).format("YYYY-MM-DD"),
         wallet_id: selectedWallet === "all" ? undefined : selectedWallet,
         category_id: selectedCategory === "all" ? undefined : selectedCategory,
+        user_id: selectedUser === "all" ? undefined : selectedUser,
       }
     ),
   });
@@ -227,6 +238,22 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
+          {user?.role === "admin" && (
+            <Select value={selectedUser} onValueChange={setSelectedUser}>
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue placeholder="All Users" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Users</SelectItem>
+                {usersData?.users?.map((u) => (
+                  <SelectItem key={u.id} value={u.id.toString()}>
+                    {u.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           <Button
             variant="outline"
             size="sm"
@@ -234,6 +261,7 @@ export default function Dashboard() {
               setTimeRange("this_month");
               setSelectedWallet("all");
               setSelectedCategory("all");
+              setSelectedUser("all");
             }}
             className="h-9"
           >

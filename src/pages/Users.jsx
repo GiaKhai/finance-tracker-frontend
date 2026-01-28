@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "../services/userService";
 import {
@@ -27,14 +27,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import {
     Plus,
     Trash2,
     Edit,
@@ -42,11 +34,11 @@ import {
     User,
     Shield,
     ShieldAlert,
-    Loader2,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { useAuthStore } from "../store/authStore";
+import DataTable from "@/components/data-table";
 
 export default function Users() {
     const queryClient = useQueryClient();
@@ -90,7 +82,7 @@ export default function Users() {
         onError: (error) => {
             const message = error.response?.data?.message || "Failed to create user";
             alert(message);
-        }
+        },
     });
 
     const updateMutation = useMutation({
@@ -104,7 +96,7 @@ export default function Users() {
         onError: (error) => {
             const message = error.response?.data?.message || "Failed to update user";
             alert(message);
-        }
+        },
     });
 
     const deleteMutation = useMutation({
@@ -113,15 +105,13 @@ export default function Users() {
             queryClient.invalidateQueries(["users"]);
         },
         onError: (error) => {
-            const message =
-                error.response?.data?.message || "Failed to delete user";
+            const message = error.response?.data?.message || "Failed to delete user";
             alert(message);
         },
     });
 
     const onSubmit = (data) => {
         if (editingUser) {
-            // Remove password if empty during update
             if (!data.password) delete data.password;
             updateMutation.mutate({ id: editingUser.id, data });
         } else {
@@ -134,7 +124,7 @@ export default function Users() {
         setValue("name", user.name);
         setValue("email", user.email);
         setValue("role", user.role);
-        setValue("password", ""); // Reset password field
+        setValue("password", "");
         setShowDialog(true);
     };
 
@@ -144,28 +134,116 @@ export default function Users() {
         setShowDialog(true);
     };
 
-    if (currentUser?.role !== 'admin') {
+    const columns = useMemo(
+        () => [
+            {
+                accessorKey: "name",
+                header: "User",
+                cell: ({ row }) => (
+                    <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {row.original.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="font-medium">{row.original.name}</span>
+                    </div>
+                ),
+            },
+            {
+                accessorKey: "email",
+                header: "Email",
+            },
+            {
+                accessorKey: "role",
+                header: "Role",
+                cell: ({ row }) => (
+                    <Badge
+                        variant={row.original.role === "admin" ? "destructive" : "secondary"}
+                        className="capitalize"
+                    >
+                        {row.original.role === "admin" ? (
+                            <Shield className="w-3 h-3 mr-1" />
+                        ) : (
+                            <User className="w-3 h-3 mr-1" />
+                        )}
+                        {row.original.role}
+                    </Badge>
+                ),
+            },
+            {
+                accessorKey: "created_at",
+                header: "Joined",
+                cell: ({ row }) => (
+                    <span className="text-muted-foreground">
+                        {format(new Date(row.original.created_at), "MMM d, yyyy")}
+                    </span>
+                ),
+            },
+            {
+                id: "actions",
+                header: "Actions",
+                cell: ({ row }) => (
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(row.original)}
+                            className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                                if (
+                                    confirm(
+                                        `Delete user "${row.original.name}"? This action cannot be undone.`
+                                    )
+                                ) {
+                                    deleteMutation.mutate(row.original.id);
+                                }
+                            }}
+                            disabled={
+                                deleteMutation.isPending || row.original.id === currentUser?.id
+                            }
+                            className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                ),
+            },
+        ],
+        [deleteMutation.isPending, currentUser?.id]
+    );
+
+    if (currentUser?.role !== "admin") {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] text-center">
                 <ShieldAlert className="h-16 w-16 text-destructive mb-4" />
                 <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
-                <p className="text-muted-foreground mt-2">You do not have permission to view this page.</p>
+                <p className="text-muted-foreground mt-2">
+                    You do not have permission to view this page.
+                </p>
             </div>
-        )
+        );
     }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
                         User Management
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Manage system users and their permissions
                     </p>
                 </div>
-                <Button onClick={handleAddNew} className="shadow-lg hover:shadow-xl transition-all">
+                <Button
+                    onClick={handleAddNew}
+                    className="shadow-lg hover:shadow-xl transition-all"
+                >
                     <Plus className="mr-2 h-4 w-4" />
                     Add User
                 </Button>
@@ -173,8 +251,9 @@ export default function Users() {
 
             <Card className="border-border/50 shadow-sm">
                 <CardHeader className="pb-3">
-                    <div className="flex items-center gap-2">
-                        <div className="relative flex-1 max-w-sm">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">Users List</CardTitle>
+                        <div className="relative w-full max-w-sm">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search users..."
@@ -188,114 +267,26 @@ export default function Users() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border overflow-hidden">
-                        <Table>
-                            <TableHeader className="bg-muted/50">
-                                <TableRow>
-                                    <TableHead className="w-[200px]">User</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Joined</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                                Loading users...
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : data?.users?.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                                            No users found
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    data?.users?.map((user) => (
-                                        <TableRow key={user.id} className="group hover:bg-muted/5">
-                                            <TableCell className="font-medium">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                                        {user.name.charAt(0).toUpperCase()}
-                                                    </div>
-                                                    {user.name}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{user.email}</TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant={user.role === 'admin' ? "destructive" : "secondary"}
-                                                    className="capitalize"
-                                                >
-                                                    {user.role === 'admin' ? <Shield className="w-3 h-3 mr-1" /> : <User className="w-3 h-3 mr-1" />}
-                                                    {user.role}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground">
-                                                {format(new Date(user.created_at), "MMM d, yyyy")}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleEdit(user)}
-                                                        className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => {
-                                                            if (confirm(`Delete user "${user.name}"? This action cannot be undone.`)) {
-                                                                deleteMutation.mutate(user.id);
-                                                            }
-                                                        }}
-                                                        disabled={deleteMutation.isPending || user.id === currentUser?.id}
-                                                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {/* Pagination */}
-                    {data?.pagination && data.pagination.totalPages > 1 && (
-                        <div className="flex items-center justify-end gap-2 mt-4">
-                            <span className="text-sm text-muted-foreground mr-2">
-                                Page {page} of {data.pagination.totalPages}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage((p) => Math.min(data.pagination.totalPages, p + 1))}
-                                disabled={page === data.pagination.totalPages}
-                            >
-                                Next
-                            </Button>
-                        </div>
-                    )}
+                <CardContent className="p-0">
+                    <DataTable
+                        columns={columns}
+                        data={data?.users || []}
+                        isLoading={isLoading}
+                        showPagination={true}
+                        pagination={
+                            data?.pagination
+                                ? {
+                                    current: data.pagination.page,
+                                    pageSize: data.pagination.limit,
+                                    total: data.pagination.total,
+                                }
+                                : undefined
+                        }
+                        onPageChange={(p, l) => {
+                            setPage(p);
+                            setLimit(l);
+                        }}
+                    />
                 </CardContent>
             </Card>
 
@@ -304,7 +295,9 @@ export default function Users() {
                     <DialogHeader>
                         <DialogTitle>{editingUser ? "Edit User" : "Add New User"}</DialogTitle>
                         <DialogDescription>
-                            {editingUser ? "Update user details and permissions." : "Create a new account for a user."}
+                            {editingUser
+                                ? "Update user details and permissions."
+                                : "Create a new account for a user."}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -316,7 +309,9 @@ export default function Users() {
                                 {...register("name", { required: "Name is required" })}
                                 placeholder="John Doe"
                             />
-                            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+                            {errors.name && (
+                                <p className="text-sm text-destructive">{errors.name.message}</p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
@@ -327,7 +322,9 @@ export default function Users() {
                                 {...register("email", { required: "Email is required" })}
                                 placeholder="john@example.com"
                             />
-                            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+                            {errors.email && (
+                                <p className="text-sm text-destructive">{errors.email.message}</p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
@@ -335,10 +332,18 @@ export default function Users() {
                             <Input
                                 id="password"
                                 type="password"
-                                {...register("password", { required: !editingUser && "Password is required" })}
-                                placeholder={editingUser ? "Leave blank to keep current password" : "Secure password"}
+                                {...register("password", {
+                                    required: !editingUser && "Password is required",
+                                })}
+                                placeholder={
+                                    editingUser ? "Leave blank to keep current password" : "Secure password"
+                                }
                             />
-                            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+                            {errors.password && (
+                                <p className="text-sm text-destructive">
+                                    {errors.password.message}
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
@@ -368,10 +373,10 @@ export default function Users() {
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                                {createMutation.isPending || updateMutation.isPending ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : null}
+                            <Button
+                                type="submit"
+                                disabled={createMutation.isPending || updateMutation.isPending}
+                            >
                                 {editingUser ? "Update User" : "Create User"}
                             </Button>
                         </DialogFooter>
