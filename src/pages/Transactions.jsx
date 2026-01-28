@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Receipt, Trash2, ArrowUpRight, ArrowDownRight, Filter, X } from "lucide-react";
+import { Receipt, Trash2, ArrowUpRight, ArrowDownRight, Filter, X, ArrowRightLeft } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/data-table";
 import dayjs from "dayjs";
@@ -127,47 +127,98 @@ export default function Transactions() {
       {
         accessorKey: "category_name",
         header: "Category",
+        cell: ({ row }) => {
+          if (row.original.type === "TRANSFER") {
+            return (
+              <div className="flex items-center gap-2 text-blue-600">
+                <ArrowRightLeft className="h-4 w-4" />
+                <span>Transfer</span>
+              </div>
+            );
+          }
+          return (
+            <div className="flex items-center gap-2">
+              <span>{row.original.category_icon}</span>
+              <span>{row.original.category_name}</span>
+            </div>
+          );
+        },
         enableSorting: true,
       },
       {
         accessorKey: "wallet_name",
         header: "Wallet",
-        cell: ({ row }) => (
-          <span className="text-muted-foreground">
-            {row.original.wallet_name || "-"}
-          </span>
-        ),
+        cell: ({ row }) => {
+          if (row.original.type === "TRANSFER") {
+            return (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <span>{row.original.wallet_name}</span>
+                <ArrowUpRight className="h-3 w-3" />
+                <span>{row.original.target_wallet_name}</span>
+              </div>
+            );
+          }
+          return (
+            <span className="text-muted-foreground">
+              {row.original.wallet_name || "-"}
+            </span>
+          );
+        },
       },
       {
         accessorKey: "type",
         header: "Type",
-        cell: ({ row }) => (
-          <Badge
-            variant={row.original.type === "INCOME" ? "success" : "destructive"}
-            className="gap-1"
-          >
-            {row.original.type === "INCOME" ? (
-              <ArrowUpRight className="h-3 w-3" />
-            ) : (
-              <ArrowDownRight className="h-3 w-3" />
-            )}
-            {row.original.type}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const type = row.original.type;
+          if (type === "TRANSFER") {
+            return (
+              <Badge variant="outline" className="gap-1 border-blue-200 bg-blue-50 text-blue-700">
+                <ArrowRightLeft className="h-3 w-3" />
+                Transfer
+              </Badge>
+            );
+          }
+          return (
+            <Badge
+              variant={type === "INCOME" ? "success" : "destructive"}
+              className="gap-1"
+            >
+              {type === "INCOME" ? (
+                <ArrowUpRight className="h-3 w-3" />
+              ) : (
+                <ArrowDownRight className="h-3 w-3" />
+              )}
+              {type === "INCOME" ? "THU NHẬP" : "CHI TIÊU"}
+            </Badge>
+          );
+        },
         enableSorting: true,
       },
       {
         accessorKey: "amount",
         header: "Amount",
-        cell: ({ row }) => (
-          <span
-            className={`font-bold ${row.original.type === "INCOME" ? "text-green-600" : "text-red-600"
-              }`}
-          >
-            {row.original.type === "INCOME" ? "+" : "-"}
-            {formatCurrency(parseFloat(row.original.amount))}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const type = row.original.type;
+          const amount = parseFloat(row.original.amount);
+
+          if (type === "TRANSFER") {
+            return (
+              <span className="font-bold text-blue-600">
+                {formatCurrency(amount)}
+              </span>
+            );
+          }
+
+          return (
+            <span
+              className={`font-bold ${type === "INCOME" ? "text-green-600" : "text-red-600"
+                }`}
+            >
+              {type === "INCOME" ? "+" : "-"}
+              {formatCurrency(amount)}
+            </span>
+          );
+        },
         enableSorting: true,
       },
       {
@@ -178,7 +229,7 @@ export default function Transactions() {
               variant="ghost"
               size="icon"
               onClick={() =>
-                handleDelete(row.original.id, row.original.category)
+                handleDelete(row.original.id, row.original.type === 'TRANSFER' ? 'Transfer' : row.original.category_name)
               }
               disabled={deleteMutation.isPending}
               className="hover:bg-destructive/10"
@@ -189,7 +240,7 @@ export default function Transactions() {
         ),
       },
     ],
-    [deleteMutation.isPending]
+    [deleteMutation.isPending, user?.role]
   );
 
   const transactions = data?.transactions || [];
@@ -223,10 +274,10 @@ export default function Transactions() {
                 onValueChange={(val) => setValue("wallet_id", val)}
               >
                 <SelectTrigger className="w-[140px] h-9">
-                  <SelectValue placeholder="All Wallets" />
+                  <SelectValue placeholder="All wallets" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Wallets</SelectItem>
+                  <SelectItem value="all">All wallets</SelectItem>
                   {walletsData?.wallets?.map((wallet) => (
                     <SelectItem key={wallet.id} value={wallet.id.toString()}>
                       {wallet.name}
@@ -240,10 +291,10 @@ export default function Transactions() {
                 onValueChange={(val) => setValue("category_id", val)}
               >
                 <SelectTrigger className="w-[140px] h-9">
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="all">All categories</SelectItem>
                   {categoriesData?.categories?.map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.icon} {category.name}
@@ -257,10 +308,10 @@ export default function Transactions() {
                 onValueChange={(val) => setValue("type", val)}
               >
                 <SelectTrigger className="w-[120px] h-9">
-                  <SelectValue placeholder="All Types" />
+                  <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="all">All types</SelectItem>
                   <SelectItem value="income">Income</SelectItem>
                   <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
@@ -315,9 +366,9 @@ export default function Transactions() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>All Transactions</CardTitle>
+            <CardTitle>All transactions</CardTitle>
             <CardDescription>
-              A complete list of your financial activities
+              Full list of your financial activities
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
