@@ -10,6 +10,7 @@ import Transactions from "./pages/Transactions";
 import Categories from "./pages/Categories";
 import Users from "./pages/Users";
 import Budgets from "./pages/Budgets";
+import Profile from "./pages/Profile";
 import Layout from "./components/Layout";
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="categories" element={<Categories />} />
         <Route path="users" element={<Users />} />
         <Route path="budgets" element={<Budgets />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   );

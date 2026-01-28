@@ -44,8 +44,8 @@ const DataTable = ({
       boxShadow: isLastLeftPinnedColumn
         ? "-1px 0 1px -1px gray inset"
         : isFirstRightPinnedColumn
-        ? "1px 0 1px -1px gray inset"
-        : undefined,
+          ? "1px 0 1px -1px gray inset"
+          : undefined,
       left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
       right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
       position: isPinned ? "sticky" : "relative",
@@ -86,8 +86,8 @@ const DataTable = ({
   );
 
   return (
-    <div className="w-full overflow-auto rounded-lg">
-      <Table className="border-b-1 table-fixed w-full">
+    <div className="w-full rounded-lg border shadow-sm bg-white overflow-x-auto">
+      <Table className="border-b-1 table-auto w-full">
         {/* Header */}
         <TableHeader className={tableHeadClassName}>
           {getHeaderGroups().map((headerGroup) => {
@@ -99,7 +99,7 @@ const DataTable = ({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="relative after:absolute after:right-0 after:top-2 after:bottom-2 after:w-[1px] after:bg-gray-300 last:after:hidden"
+                    className="relative whitespace-nowrap after:absolute after:right-0 after:top-2 after:bottom-2 after:w-[1px] after:bg-gray-300 last:after:hidden"
                     style={{ ...getCommonPinningStyles(header.column) }}
                   >
                     <div
@@ -118,9 +118,9 @@ const DataTable = ({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                       {header.column.getCanSort() && (
                         <div className="ms-1">
                           {
@@ -154,16 +154,16 @@ const DataTable = ({
               return (
                 <TableRow
                   key={row.id}
-                  className={`duration-150 ease-in-out ${
-                    isRowHighlight
-                      ? "bg-red-50 hover:bg-red-100"
-                      : "bg-white hover:bg-muted"
-                  }`}
+                  className={`duration-150 ease-in-out ${isRowHighlight
+                    ? "bg-red-50 hover:bg-red-100"
+                    : "bg-white hover:bg-muted"
+                    }`}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (
                       <TableCell
                         key={cell.id}
+                        className="whitespace-nowrap"
                         style={{ ...getCommonPinningStyles(cell.column) }}
                       >
                         {flexRender(
@@ -212,15 +212,14 @@ const DataTable = ({
                   <TableCell
                     key={column.id}
                     style={{ ...getCommonPinningStyles(column) }}
-                    className={`${
-                      summaryData[column.id]?.align === "left"
-                        ? "text-left"
-                        : summaryData[column.id]?.align === "right"
+                    className={`${summaryData[column.id]?.align === "left"
+                      ? "text-left"
+                      : summaryData[column.id]?.align === "right"
                         ? "text-right"
                         : summaryData[column.id]?.align === "center"
-                        ? "text-center"
-                        : ""
-                    }`}
+                          ? "text-center"
+                          : ""
+                      }`}
                   >
                     {summaryData[column.id]?.value || ""}
                   </TableCell>

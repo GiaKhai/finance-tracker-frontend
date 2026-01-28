@@ -170,7 +170,6 @@ export default function Wallets() {
                   type="number"
                   step="0.01"
                   {...register("balance")}
-                  defaultValue={0}
                   placeholder="0.00"
                   className="pr-16"
                 />
@@ -210,7 +209,7 @@ export default function Wallets() {
         {data?.wallets?.map((wallet) => {
           const walletType =
             walletTypes.find((t) => t.value === wallet.type) || walletTypes[0];
-          const WalletIcon = walletType.icon;          
+          const WalletIcon = walletType.icon;
           return (
             <Card
               key={wallet.id}

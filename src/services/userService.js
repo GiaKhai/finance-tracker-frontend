@@ -25,4 +25,14 @@ export const userService = {
     const response = await api.delete(`/users/${id}`);
     return response.data;
   },
+
+  updateProfile: async (data) => {
+    const response = await api.put("/users/profile/update", data);
+    return response.data;
+  },
+
+  updatePassword: async (data) => {
+    const response = await api.put("/users/profile/change-password", data);
+    return response.data;
+  },
 };

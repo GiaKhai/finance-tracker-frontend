@@ -188,7 +188,7 @@ export default function Transactions() {
               ) : (
                 <ArrowDownRight className="h-3 w-3" />
               )}
-              {type === "INCOME" ? "THU NHẬP" : "CHI TIÊU"}
+              {type === "INCOME" ? "INCOME" : "EXPENSE"}
             </Badge>
           );
         },
@@ -260,20 +260,19 @@ export default function Transactions() {
           <AddTransactionDialog />
         </div>
 
-        {/* Filters */}
         <Card className="border-border/50 shadow-sm">
           <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
                 <Filter className="h-4 w-4" />
-                <span>Filters:</span>
+                <span className="font-medium whitespace-nowrap">Filters:</span>
               </div>
 
               <Select
                 value={filters.wallet_id}
                 onValueChange={(val) => setValue("wallet_id", val)}
               >
-                <SelectTrigger className="w-[140px] h-9">
+                <SelectTrigger className="w-[140px] h-9 bg-background/50">
                   <SelectValue placeholder="All wallets" />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,7 +289,7 @@ export default function Transactions() {
                 value={filters.category_id}
                 onValueChange={(val) => setValue("category_id", val)}
               >
-                <SelectTrigger className="w-[140px] h-9">
+                <SelectTrigger className="w-[140px] h-9 bg-background/50">
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -307,7 +306,7 @@ export default function Transactions() {
                 value={filters.type}
                 onValueChange={(val) => setValue("type", val)}
               >
-                <SelectTrigger className="w-[120px] h-9">
+                <SelectTrigger className="w-[120px] h-9 bg-background/50">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -322,7 +321,7 @@ export default function Transactions() {
                   value={filters.user_id}
                   onValueChange={(val) => setValue("user_id", val)}
                 >
-                  <SelectTrigger className="w-[140px] h-9">
+                  <SelectTrigger className="w-[140px] h-9 bg-background/50">
                     <SelectValue placeholder="All Users" />
                   </SelectTrigger>
                   <SelectContent>
@@ -341,10 +340,10 @@ export default function Transactions() {
                   variant="ghost"
                   size="sm"
                   onClick={handleResetFilters}
-                  className="h-9 px-2 text-muted-foreground hover:text-foreground"
+                  className="h-9 px-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
                 >
-                  <X className="h-4 w-4 mr-1" />
-                  Reset
+                  <X className="h-4 w-4 mr-2" />
+                  Clear Filters
                 </Button>
               )}
             </div>

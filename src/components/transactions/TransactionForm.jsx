@@ -316,7 +316,7 @@ export function TransactionForm({ setOpen }) {
         ) : (
           <div className="space-y-2">
             <Label htmlFor="category">
-              Danh mục <span className="text-red-500">*</span>
+              Category <span className="text-red-500">*</span>
             </Label>
             <Controller
               name="categoryId"
