@@ -64,7 +64,7 @@ export default function TransactionsAdvanced() {
         header: "Date",
         cell: ({ row }) => (
           <span className="font-medium whitespace-nowrap">
-            {new Date(row.original.date).toLocaleDateString("vi-VN")}
+            {new Date(row.original.date).toLocaleDateString("en-US")}
           </span>
         ),
         enableSorting: true,
@@ -127,11 +127,10 @@ export default function TransactionsAdvanced() {
         cell: ({ row }) => (
           <div className="text-right">
             <span
-              className={`font-bold ${
-                row.original.type === "INCOME"
+              className={`font-bold ${row.original.type === "INCOME"
                   ? "text-green-600"
                   : "text-red-600"
-              }`}
+                }`}
             >
               {row.original.type === "INCOME" ? "+" : "-"}
               {formatCurrency(parseFloat(row.original.amount))}
@@ -210,9 +209,8 @@ export default function TransactionsAdvanced() {
             Expense: {formatCurrency(totalExpense)}
           </div>
           <div
-            className={`font-bold ${
-              netAmount >= 0 ? "text-green-600" : "text-red-600"
-            }`}
+            className={`font-bold ${netAmount >= 0 ? "text-green-600" : "text-red-600"
+              }`}
           >
             Net: {formatCurrency(netAmount)}
           </div>

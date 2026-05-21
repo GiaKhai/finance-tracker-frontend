@@ -171,7 +171,7 @@ export default function Profile() {
                                     placeholder="••••••••"
                                 />
                             </div>
-                            <Button type="submit" variant="outline" className="w-full font-bold shadow-sm border-primary/20 hover:bg-primary/5" disabled={isUpdatingPassword}>
+                            <Button type="submit" className="w-full font-bold shadow-sm" disabled={isUpdatingPassword}>
                                 {isUpdatingPassword ? (
                                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                 ) : (

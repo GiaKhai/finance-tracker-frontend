@@ -1,8 +1,9 @@
 import { Outlet, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useTheme } from "../context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut } from "lucide-react";
+import { LogOut, Sun, Moon } from "lucide-react";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import {
@@ -16,6 +17,7 @@ import {
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <SidebarProvider>
@@ -29,6 +31,20 @@ export default function Layout() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="h-10 w-10 text-foreground hover:bg-accent/10"
+                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </Button>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">

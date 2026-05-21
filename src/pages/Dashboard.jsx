@@ -365,12 +365,12 @@ export default function Dashboard() {
             {monthlyTrendData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={monthlyTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" fontSize={12} />
                   <YAxis fontSize={12} />
                   <Tooltip formatter={(value) => formatCurrency(value)} />
-                  <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="income" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expense" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

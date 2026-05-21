@@ -15,7 +15,15 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Receipt, Trash2, ArrowUpRight, ArrowDownRight, Filter, X, ArrowRightLeft } from "lucide-react";
+import {
+  Receipt,
+  Trash2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Filter,
+  X,
+  ArrowRightLeft,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/data-table";
 import dayjs from "dayjs";
@@ -34,13 +42,18 @@ export default function Transactions() {
   const [limit, setLimit] = useState(10);
   const { user } = useAuthStore();
 
-  const { register, watch, setValue, reset: resetFilters } = useForm({
+  const {
+    register,
+    watch,
+    setValue,
+    reset: resetFilters,
+  } = useForm({
     defaultValues: {
       category_id: "all",
       wallet_id: "all",
       type: "all",
-      user_id: "all"
-    }
+      user_id: "all",
+    },
   });
 
   const filters = watch();
@@ -64,14 +77,16 @@ export default function Transactions() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["transactions", page, limit, filters],
-    queryFn: () => transactionService.getTransactions({
-      page,
-      limit,
-      wallet_id: filters.wallet_id === "all" ? undefined : filters.wallet_id,
-      category_id: filters.category_id === "all" ? undefined : filters.category_id,
-      type: filters.type === "all" ? undefined : filters.type,
-      user_id: filters.user_id === "all" ? undefined : filters.user_id,
-    }),
+    queryFn: () =>
+      transactionService.getTransactions({
+        page,
+        limit,
+        wallet_id: filters.wallet_id === "all" ? undefined : filters.wallet_id,
+        category_id:
+          filters.category_id === "all" ? undefined : filters.category_id,
+        type: filters.type === "all" ? undefined : filters.type,
+        user_id: filters.user_id === "all" ? undefined : filters.user_id,
+      }),
   });
 
   const handleResetFilters = () => {
@@ -79,7 +94,7 @@ export default function Transactions() {
       category_id: "all",
       wallet_id: "all",
       type: "all",
-      user_id: "all"
+      user_id: "all",
     });
   };
 
@@ -112,18 +127,22 @@ export default function Transactions() {
         enableSorting: true,
       },
       // Admin only: User column
-      ...(user?.role === 'admin' ? [{
-        accessorKey: "user_name",
-        header: "User",
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-bold">
-              {row.original.user_name?.charAt(0).toUpperCase()}
-            </div>
-            <span className="text-sm">{row.original.user_name}</span>
-          </div>
-        )
-      }] : []),
+      ...(user?.role === "admin"
+        ? [
+            {
+              accessorKey: "user_name",
+              header: "User",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-bold">
+                    {row.original.user_name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm">{row.original.user_name}</span>
+                </div>
+              ),
+            },
+          ]
+        : []),
       {
         accessorKey: "category_name",
         header: "Category",
@@ -172,7 +191,10 @@ export default function Transactions() {
           const type = row.original.type;
           if (type === "TRANSFER") {
             return (
-              <Badge variant="outline" className="gap-1 border-blue-200 bg-blue-50 text-blue-700">
+              <Badge
+                variant="outline"
+                className="gap-1 border-primary/30 bg-primary/10 text-primary"
+              >
                 <ArrowRightLeft className="h-3 w-3" />
                 Transfer
               </Badge>
@@ -211,8 +233,9 @@ export default function Transactions() {
 
           return (
             <span
-              className={`font-bold ${type === "INCOME" ? "text-green-600" : "text-red-600"
-                }`}
+              className={`font-bold ${
+                type === "INCOME" ? "text-green-600" : "text-red-600"
+              }`}
             >
               {type === "INCOME" ? "+" : "-"}
               {formatCurrency(amount)}
@@ -229,7 +252,12 @@ export default function Transactions() {
               variant="ghost"
               size="icon"
               onClick={() =>
-                handleDelete(row.original.id, row.original.type === 'TRANSFER' ? 'Transfer' : row.original.category_name)
+                handleDelete(
+                  row.original.id,
+                  row.original.type === "TRANSFER"
+                    ? "Transfer"
+                    : row.original.category_name,
+                )
               }
               disabled={deleteMutation.isPending}
               className="hover:bg-destructive/10"
@@ -240,7 +268,7 @@ export default function Transactions() {
         ),
       },
     ],
-    [deleteMutation.isPending, user?.role]
+    [deleteMutation.isPending, user?.role],
   );
 
   const transactions = data?.transactions || [];
@@ -295,7 +323,10 @@ export default function Transactions() {
                 <SelectContent>
                   <SelectItem value="all">All categories</SelectItem>
                   {categoriesData?.categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
+                    <SelectItem
+                      key={category.id}
+                      value={category.id.toString()}
+                    >
                       {category.icon} {category.name}
                     </SelectItem>
                   ))}
@@ -335,7 +366,10 @@ export default function Transactions() {
                 </Select>
               )}
 
-              {(filters.wallet_id !== "all" || filters.category_id !== "all" || filters.type !== "all" || filters.user_id !== "all") && (
+              {(filters.wallet_id !== "all" ||
+                filters.category_id !== "all" ||
+                filters.type !== "all" ||
+                filters.user_id !== "all") && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -363,35 +397,25 @@ export default function Transactions() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>All transactions</CardTitle>
-            <CardDescription>
-              Full list of your financial activities
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <DataTable
-              columns={columns}
-              data={transactions}
-              isLoading={isLoading}
-              showPagination={true}
-              pagination={
-                data?.pagination
-                  ? {
-                    current: data.pagination.page,
-                    pageSize: data.pagination.limit,
-                    total: data.pagination.total,
-                  }
-                  : undefined
-              }
-              onPageChange={(page, pageSize) => {
-                setPage(page);
-                setLimit(pageSize);
-              }}
-            />
-          </CardContent>
-        </Card>
+        <DataTable
+          columns={columns}
+          data={transactions}
+          isLoading={isLoading}
+          showPagination={true}
+          pagination={
+            data?.pagination
+              ? {
+                  current: data.pagination.page,
+                  pageSize: data.pagination.limit,
+                  total: data.pagination.total,
+                }
+              : undefined
+          }
+          onPageChange={(page, pageSize) => {
+            setPage(page);
+            setLimit(pageSize);
+          }}
+        />
       )}
     </div>
   );

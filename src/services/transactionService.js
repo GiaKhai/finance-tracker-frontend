@@ -30,4 +30,29 @@ export const transactionService = {
     const response = await api.delete(`/transactions/${id}`);
     return response.data;
   },
+
+  uploadImage: async (formData) => {
+    const response = await api.post("/upload/image", formData);
+    return response.data;
+  },
+
+  uploadTransactionPhoto: async (data) => {
+    const response = await api.post("/transactions/upload", data);
+    return response.data;
+  },
+
+  getPhotosByDate: async (params) => {
+    const response = await api.get("/transactions/photos/calendar", { params });
+    return response.data;
+  },
+
+  getPhotos: async (params) => {
+    const response = await api.get("/transactions/photos", { params });
+    return response.data;
+  },
+
+  deletePhoto: async (id) => {
+    const response = await api.delete(`/transactions/photos/${id}`);
+    return response.data;
+  },
 };

@@ -7,6 +7,7 @@ import {
     Tag,
     User,
     Settings,
+    Calendar,
 } from "lucide-react"
 
 import {
@@ -28,6 +29,7 @@ export function AppSidebar() {
     const navItems = [
         { to: "/", label: "Dashboard", icon: LayoutDashboard },
         { to: "/wallets", label: "Wallets", icon: Wallet },
+        { to: "/calendar", label: "Calendar", icon: Calendar },
         { to: "/transactions", label: "Transactions", icon: Receipt },
         { to: "/categories", label: "Categories", icon: Tag },
         { to: "/budgets", label: "Budgets", icon: Tag },

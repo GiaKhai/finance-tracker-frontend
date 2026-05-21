@@ -6,6 +6,7 @@ import App from "./App";
 import "./index.css";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,10 +21,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <App />
-          <Toaster richColors position="top-center" closeButton />
-        </TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            <App />
+            <Toaster richColors position="top-center" closeButton />
+          </TooltipProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff, LogIn, Wallet } from "lucide-react";
+import { Eye, EyeOff, LogIn, Wallet, Sun, Moon } from "lucide-react";
 import { authService } from "../services/authService";
 import { useAuthStore } from "../store/authStore";
+import { useTheme } from "../context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ import {
 export default function Login() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+  const { theme, toggleTheme } = useTheme();
   const {
     register,
     handleSubmit,
@@ -43,6 +45,18 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 h-10 w-10 text-foreground hover:bg-accent/10"
+      >
+        {theme === "dark" ? (
+          <Sun className="h-5 w-5" />
+        ) : (
+          <Moon className="h-5 w-5" />
+        )}
+      </Button>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
